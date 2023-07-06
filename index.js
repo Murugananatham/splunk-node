@@ -26,7 +26,6 @@ app.use(function (req, res, next) {
     next();
 });
 
-
 app.get("/", (req, res) => {
     res.send("Hello World");
 });
@@ -78,7 +77,6 @@ app.get("/splunk-login", (req, res) => {
     }
     // res.send("Are you checking something???");
 });
-
 
 
 app.get("/splunk-sample-search", (req, res) => {
@@ -151,7 +149,7 @@ app.get("/splunk-sample-search", (req, res) => {
 })
 
 
-app.get("/splunk-sample-search", (req, res) => {
+app.get("/splunk-metrics-search", (req, res) => {
     let service = new splunkjs.Service({
         username: "admin",
         password: "Pa55word",
@@ -161,7 +159,7 @@ app.get("/splunk-sample-search", (req, res) => {
     });
 
     // Search everything and return the first 100 results
-    let searchQuery = "| tstats count where index=_internal by sourcetype";
+    let searchQuery = "search index=_introspection component=Hostwide |  fields _time host data.cpu_idle_pct data.cpu_system_pct data.cpu_user_pct data.mem data.mem_used data.swap data.swap_used |  rename data.* as *  |  table _time host cpu_idle_pct cpu_system_pct cpu_user_pct mem mem_used |  eval mem_used_pct=round((mem_used/mem)*100,2) | table _time mem_used_pct | timechart span=1d avg(mem_used_pct) as avg";
 
     // Set the search parameters
     let searchParams = {
